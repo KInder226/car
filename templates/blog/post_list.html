@@ -1,0 +1,79 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Блог про машины - Главная{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center; margin-bottom: 2rem; color: #667eea;">Блог про машины</h1>
+
+{% if categories %}
+<div class="categories">
+    <a href="{% url 'blog:post_list' %}" class="category-link {% if not selected_category %}active{% endif %}">Все</a>
+    {% for category in categories %}
+    <a href="{% url 'blog:category_detail' category.slug %}" class="category-link {% if selected_category == category.slug %}active{% endif %}">
+        {{ category.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if search_query %}
+<div style="margin-bottom: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 5px;">
+    <strong>Результаты поиска по запросу:</strong> "{{ search_query }}"
+</div>
+{% endif %}
+
+{% if page_obj %}
+<div class="posts-grid">
+    {% for post in page_obj %}
+    <article class="post-card">
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-image">
+        {% else %}
+        <div class="post-image"></div>
+        {% endif %}
+        <div class="post-content">
+            <h2 class="post-title">
+                <a href="{% url 'blog:post_detail' post.slug %}">{{ post.title }}</a>
+            </h2>
+            <div class="post-meta">
+                <span>📅 {{ post.created_at|date:"d.m.Y" }}</span>
+                {% if post.category %}
+                <span> | 📂 {{ post.category.name }}</span>
+                {% endif %}
+                <span> | 👁️ {{ post.views }}</span>
+            </div>
+            {% if post.excerpt %}
+            <p class="post-excerpt">{{ post.excerpt|truncatewords:20 }}</p>
+            {% endif %}
+            <a href="{% url 'blog:post_detail' post.slug %}" class="read-more">Читать далее →</a>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">« Первая</a>
+    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">‹ Предыдущая</a>
+    {% endif %}
+    
+    <span class="current">
+        Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+    </span>
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Следующая ›</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Последняя »</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div style="text-align: center; padding: 3rem;">
+    <h2>Посты не найдены</h2>
+    <p>Попробуйте изменить параметры поиска или фильтры.</p>
+</div>
+{% endif %}
+{% endblock %}
+

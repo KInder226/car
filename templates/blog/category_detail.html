@@ -1,0 +1,75 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ category.name }} - Блог про машины{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center; margin-bottom: 1rem; color: #667eea;">{{ category.name }}</h1>
+
+{% if category.description %}
+<div style="text-align: center; margin-bottom: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; color: #666;">
+    {{ category.description }}
+</div>
+{% endif %}
+
+{% if categories %}
+<div class="categories">
+    <a href="{% url 'blog:post_list' %}" class="category-link">Все</a>
+    {% for cat in categories %}
+    <a href="{% url 'blog:category_detail' cat.slug %}" class="category-link {% if cat.slug == category.slug %}active{% endif %}">
+        {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if page_obj %}
+<div class="posts-grid">
+    {% for post in page_obj %}
+    <article class="post-card">
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-image">
+        {% else %}
+        <div class="post-image"></div>
+        {% endif %}
+        <div class="post-content">
+            <h2 class="post-title">
+                <a href="{% url 'blog:post_detail' post.slug %}">{{ post.title }}</a>
+            </h2>
+            <div class="post-meta">
+                <span>📅 {{ post.created_at|date:"d.m.Y" }}</span>
+                <span> | 👁️ {{ post.views }}</span>
+            </div>
+            {% if post.excerpt %}
+            <p class="post-excerpt">{{ post.excerpt|truncatewords:20 }}</p>
+            {% endif %}
+            <a href="{% url 'blog:post_detail' post.slug %}" class="read-more">Читать далее →</a>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page=1">« Первая</a>
+    <a href="?page={{ page_obj.previous_page_number }}">‹ Предыдущая</a>
+    {% endif %}
+    
+    <span class="current">
+        Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+    </span>
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Следующая ›</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}">Последняя »</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div style="text-align: center; padding: 3rem;">
+    <h2>В этой категории пока нет постов</h2>
+</div>
+{% endif %}
+{% endblock %}
+

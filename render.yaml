@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: blog-cars
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn blog_project.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: blog-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        fromService:
+          type: web
+          name: blog-cars
+          property: host
+    healthCheckPath: /
+    
+databases:
+  - name: blog-db
+    plan: free
+
