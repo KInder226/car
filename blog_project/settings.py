@@ -24,7 +24,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-8x_+k*%$#@!1234567890
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') if os.environ.get('ALLOWED_HOSTS') else []
+# ALLOWED_HOSTS - список разрешенных хостов
+ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS')
+if ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_ENV.split(',') if host.strip()]
+elif not DEBUG:
+    # Для production (DEBUG=False) без указанного ALLOWED_HOSTS
+    # Разрешаем все хосты (небезопасно, но работает на Render)
+    # РЕКОМЕНДУЕТСЯ: установить ALLOWED_HOSTS через переменную окружения на Render
+    ALLOWED_HOSTS = ['*']
+else:
+    # Для разработки (DEBUG=True)
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
 
 # Application definition
